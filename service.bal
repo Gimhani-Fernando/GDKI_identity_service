@@ -3,21 +3,27 @@ import ballerina/uuid;
 import ballerinax/mysql.driver as _;
 import ballerina/log;
 
-isolated function addRequest(string initials_fullname, string fullname, string nic, string gender, string contact_num, string email, string address, time:Date DOB, string grama_division) returns IdentityRequest|error
+isolated function addRequest(NewIdentityRequest newrequest) returns IdentityRequest|error
 {
+    //check if grama division exists
+    GramaDivision|error grama_division = getGramaDivision(newrequest.gramasevaka_division);
+    if (grama_division is error) {
+        return grama_division;
+    }
+    
     IdentityRequest request = {
         id: uuid:createType4AsString(),
-        initials_fullname: initials_fullname,
-        fullname: fullname,
-        NIC: nic,
-        DOB: DOB,
+        initials_fullname: newrequest.initials_fullname,
+        fullname: newrequest.fullname,
+        NIC: newrequest.NIC,
+        DOB: newrequest.DOB,
         approved_by: "",
-        contact_num: contact_num,
-        address: address,
-        gender: gender,
-        grama_divisionId: grama_division,
+        contact_num: newrequest.contact_num,
+        address: newrequest.address,
+        gender: newrequest.gender,
+        grama_divisionId: newrequest.gramasevaka_division,
         applied_date: time:utcToCivil(time:utcNow()),
-        email: email,
+        email: newrequest.email,
         status: "Pending"
     };
 
@@ -103,6 +109,15 @@ isolated function getRequestByNIC(string nic) returns IdentityRequest[]|error {
         return requests;
     } else {
         return requests;
+    }
+}
+
+isolated function getGramaDivision(string id) returns GramaDivision|error {
+    GramaDivision|error grama_division = dbclient->/gramadivisions/[id];
+    if grama_division is error {
+        return grama_division;
+    } else {
+        return grama_division;
     }
 }
 
