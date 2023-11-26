@@ -9,13 +9,19 @@ public type IdentityRequest record {|
     string gender;
     string contact_num;
     string email;
-    string province;
-    string district;
-    string DS_division;
-    string GN_division;
     string address;
     time:Date DOB;
     time:Date applied_date;
     string approved_by;
     string status;
+    GramaDivision grama_division;
+|};
+
+public type GramaDivision record {|
+    readonly string id;
+    string province;
+    string district;
+    string DS_division;
+    string GN_division;
+	IdentityRequest[] identityrequest;
 |};
