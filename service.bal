@@ -1,6 +1,7 @@
 import ballerina/time;
 import ballerina/uuid;
 import ballerinax/mysql.driver as _;
+import ballerina/persist;
 import ballerina/log;
 
 isolated function addRequest(NewIdentityRequest newrequest) returns IdentityRequest|error
@@ -10,7 +11,7 @@ isolated function addRequest(NewIdentityRequest newrequest) returns IdentityRequ
     if (grama_division is error) {
         return grama_division;
     }
-    
+
     IdentityRequest request = {
         id: uuid:createType4AsString(),
         initials_fullname: newrequest.initials_fullname,
@@ -63,6 +64,14 @@ isolated function getRequest(string id) returns IdentityRequest|error {
     }
 }
 
+isolated function deleteRequest(string id) returns ()|error {
+    IdentityRequest|persist:Error deleted = dbclient->/identityrequests/[id].delete();
+    if (deleted is error) {
+        return deleted;
+    }
+    return ();
+}
+
 isolated function getRequestsByGramaDivision(string grama_division_id) returns IdentityRequest[]|error {
     IdentityRequest[]|error requests = from var request in dbclient->/identityrequests(targetType = IdentityRequest)
         where request.grama_divisionId == grama_division_id
@@ -75,7 +84,7 @@ isolated function getRequestsByGramaDivision(string grama_division_id) returns I
     }
 }
 
-isolated function getRequestByStatus(string status) returns IdentityRequest[]|error {
+isolated function getRequestsByStatus(string status) returns IdentityRequest[]|error {
     IdentityRequest[]|error requests = from var request in dbclient->/identityrequests(targetType = IdentityRequest)
         where request.status == status
         select request;
@@ -87,7 +96,7 @@ isolated function getRequestByStatus(string status) returns IdentityRequest[]|er
     }
 }
 
-isolated function getRequestByStatusAndGramaDivision(string status, string grama_division_id) returns IdentityRequest[]|error {
+isolated function getRequestsByStatusAndGramaDivision(string status, string grama_division_id) returns IdentityRequest[]|error {
     IdentityRequest[]|error requests = from var request in dbclient->/identityrequests(targetType = IdentityRequest)
         where request.status == status
         where request.grama_divisionId == grama_division_id
@@ -100,7 +109,7 @@ isolated function getRequestByStatusAndGramaDivision(string status, string grama
     }
 }
 
-isolated function getRequestByNIC(string nic) returns IdentityRequest[]|error {
+isolated function getRequestsByNIC(string nic) returns IdentityRequest[]|error {
     IdentityRequest[]|error requests = from var request in dbclient->/identityrequests(targetType = IdentityRequest)
         where request.NIC == nic
         select request;
