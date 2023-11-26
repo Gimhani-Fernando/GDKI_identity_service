@@ -9,7 +9,7 @@ observabilityIncluded = true
 
 [persist]
 datastore = "mysql"
-module = "GDKI_identity_service.store"
+module = "GDKI_identity_service"
 
 [[platform.java17.dependency]]
 groupId = "io.ballerina.stdlib"
