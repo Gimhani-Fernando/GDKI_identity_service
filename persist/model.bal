@@ -10,8 +10,8 @@ public type IdentityRequest record {|
     string contact_num;
     string email;
     string address;
-    time:Date DOB;
-    time:Date applied_date;
+    time:Utc DOB;
+    time:Utc applied_date;
     string approved_by;
     string status;
     GramaDivision grama_division;

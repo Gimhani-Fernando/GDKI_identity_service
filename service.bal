@@ -23,7 +23,7 @@ isolated function addRequest(NewIdentityRequest newrequest) returns IdentityRequ
         address: newrequest.address,
         gender: newrequest.gender,
         grama_divisionId: newrequest.gramasevaka_division,
-        applied_date: time:utcToCivil(time:utcNow()),
+        applied_date: time:utcNow(),
         email: newrequest.email,
         status: "Pending"
     };
@@ -120,11 +120,10 @@ isolated function getRequestsByNIC(string nic) returns IdentityRequest[]|error {
         return requests;
     }
 }
-isolated function checkDateIsLessThanSixMonthsFromNow(time:Civil date) returns boolean|error {
-    time:Utc utc_date = check time:utcFromCivil(date);
+isolated function checkDateIsLessThanSixMonthsFromNow(time:Utc date) returns boolean|error {
     time:Utc now = time:utcNow();
     time:Utc six_months_ago = time:utcAddSeconds(now, -15768000);
-    if (utc_date<six_months_ago) {
+    if (date<six_months_ago) {
         return false;
     }
     return true;
@@ -134,8 +133,7 @@ isolated function checkRequestIsValid(IdentityRequest request) returns boolean|e
     if (request.status == "Rejected" || request.status == "Pending") {
         return false;
     }
-    time:Date applied_date = request.applied_date;
-    boolean valid_date = check checkDateIsLessThanSixMonthsFromNow(<time:Civil>applied_date);
+    boolean valid_date = check checkDateIsLessThanSixMonthsFromNow(request.applied_date);
     if (!valid_date) {
         return false;
     }

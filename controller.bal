@@ -9,7 +9,7 @@ public type NewIdentityRequest record {|
     string contact_num;
     string email;
     string address;
-    time:Date DOB;
+    time:Utc DOB;
     string gramasevaka_division;
 |};
 
