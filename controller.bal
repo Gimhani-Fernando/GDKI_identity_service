@@ -34,7 +34,7 @@ service /identity on new http:Listener(8081) {
             return getRequests();
         }
     }
-    isolated resource function get requests/[string id]() returns IdentityRequest|error {
+    isolated resource function get requests/[string nic]() returns IdentityRequest|error {
         return getRequest(id);
     }
         isolated resource function get requests/validate/[string nic]() returns boolean|error {
