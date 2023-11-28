@@ -120,7 +120,41 @@ isolated function getRequestsByNIC(string nic) returns IdentityRequest[]|error {
         return requests;
     }
 }
+isolated function checkDateIsLessThanSixMonthsFromNow(time:Civil date) returns boolean|error {
+    time:Utc utc_date = check time:utcFromCivil(date);
+    time:Utc now = time:utcNow();
+    time:Utc six_months_ago = time:utcAddSeconds(now, -15768000);
+    if (utc_date<six_months_ago) {
+        return false;
+    }
+    return true;
+}
 
+isolated function checkRequestIsValid(IdentityRequest request) returns boolean|error {
+    if (request.status == "Rejected" || request.status == "Pending") {
+        return false;
+    }
+    time:Date applied_date = request.applied_date;
+    boolean valid_date = check checkDateIsLessThanSixMonthsFromNow(<time:Civil>applied_date);
+    if (!valid_date) {
+        return false;
+    }
+    return true;
+}
+
+isolated function checkCitizenHasValidIdentityRequests(string nic) returns boolean|error {
+    IdentityRequest[]|error requests = getRequestsByNIC(nic);
+    if (requests is error) {
+        return false;
+    }
+    foreach var request in requests {
+        boolean valid =check checkRequestIsValid(request);
+        if (valid) {
+            return true;
+        }
+    }
+    return false;
+}
 isolated function getGramaDivision(string id) returns GramaDivision|error {
     GramaDivision|error grama_division = dbclient->/gramadivisions/[id];
     if grama_division is error {
@@ -129,9 +163,20 @@ isolated function getGramaDivision(string id) returns GramaDivision|error {
         return grama_division;
     }
 }
+isolated function getGramaDivisions() returns GramaDivision[]|error {
+    GramaDivision[]|error grama_divisions = from var grama_division in dbclient->/gramadivisions(targetType = GramaDivision)
+        select grama_division;
+    if grama_divisions is error {
+        log:printError("Error while retrieving grama divisions from the database", 'error = grama_divisions);
+        return grama_divisions;
+    } else {
+        return grama_divisions;
+    }
+}
 
 function initializeDbClient() returns Client|error {
     return new Client();
 }
 
 final Client dbclient = check initializeDbClient();
+
