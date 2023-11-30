@@ -1,0 +1,7 @@
+version: 0.1
+endpoints:
+  - name: IdentityService
+    port: 8081
+    type: REST
+    networkVisibility: Organization
+    context: /identity
